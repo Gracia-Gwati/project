@@ -5,6 +5,7 @@
   font-family: "Arial", sans-serif;
   text-align: center;
   color: #333;
+  background: radial-gradient(circle at 10% 20%, rgb(226, 240, 254) 0%, rgb(255, 247, 228) 90%);
 }
 
 .App footer {
