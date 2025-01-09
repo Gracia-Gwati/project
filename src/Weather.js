@@ -1,12 +1,16 @@
+// Weather.js
 import React, { useState } from "react";
 import FormattedDate from "./FormattedDate";
 import WeatherTemperature from "./WeatherTemperature";
+import Forecast from "./Forecast"; // Import the new Forecast component
 import axios from "axios";
 import "./Weather.css";
 
 export default function Weather(props) {
   const [weatherData, setWeatherData] = useState({ ready: false });
   const [city, setCity] = useState(props.defaultCity);
+  const [forecastData, setForecastData] = useState([]);
+
   function handleResponse(response) {
     setWeatherData({
       ready: true,
@@ -18,20 +22,30 @@ export default function Weather(props) {
       wind: response.data.wind.speed,
       city: response.data.name,
     });
+
+    // Fetch the 5-day forecast data
+    let forecastApiUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${response.data.coord.lat}&lon=${response.data.coord.lon}&exclude=current,minutely,hourly,alerts&appid=667d9f573c8af4c33457be5d561a9148&units=metric`;
+
+    axios.get(forecastApiUrl).then((forecastResponse) => {
+      setForecastData(forecastResponse.data.daily);
+    });
   }
+
   function search() {
     let apiKey = "667d9f573c8af4c33457be5d561a9148";
-
     let apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
     axios.get(apiUrl).then(handleResponse);
   }
+
   function handleSubmit(event) {
     event.preventDefault();
     search();
   }
+
   function handleCityChange(event) {
     setCity(event.target.value);
   }
+
   if (weatherData.ready) {
     return (
       <div className="Weather">
@@ -65,7 +79,6 @@ export default function Weather(props) {
         <div className="row mt-3">
           <div className="col-6">
             <img src={weatherData.iconUrl} alt={weatherData.description} />
-
             <WeatherTemperature celsius={weatherData.temperature} />
           </div>
 
@@ -76,6 +89,8 @@ export default function Weather(props) {
             </ul>
           </div>
         </div>
+        {/* Display Forecast */}
+        <Forecast forecastData={forecastData} />
       </div>
     );
   } else {
